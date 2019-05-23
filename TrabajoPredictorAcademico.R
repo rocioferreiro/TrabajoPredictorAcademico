@@ -1,20 +1,45 @@
 #Tnsert Ingreso 2018
-ingreso2018 <- read_excel("~/Downloads/Archivo/INGRESO 2018-ANON.xlsx")
+ingreso2018 <- read_excel("~/AYED/Predictor/Archivos/INGRESO 2018-ANON.xlsx")
 
 names(ingreso2018)
+names(ingreso1819)
 
 #Renombrar Columnas
 names(ingreso2018) <- c("pos", "Status", "Name", "Sex", "Career", "Year", "Entry", "Mat", "RMat", "Fis", "RFis", "PromCI", "GrantType", "GrantAsked", "GetsGrant", "PromSec", "GottenGrant", "School")
 names(ingreso2018)
+names(ingreso1819)<-c("EntryYear","Name","Sex","School","Nationality","Province","District","Year","Career","Entry","Fis","Mat","GetsGrant","PromSec","Status")
+
+
 
 #Reordenar Columnas, eliminar pos
 ingreso2018 <- ingreso2018[, c(1,6,3,4,2,5,7,8,9,10,11,12,13,14,15,17,18,16)]
 ingreso2018 <- ingreso2018[, -1]
+ingreso1819<-ingreso1819[,c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)]
 
 #Emparejar datos
 names(ingreso2018)
 unique(ingreso2018[,1])
 unique(ingreso2018[,"Mat"])
+unique(ingreso1819[,"Entry"])
+
+#Organizar Entry 
+vectoresFebrero <- which(ingreso1819[,"Entry"] == "Febrero en Pilar")
+ingreso1819[vectoresFebrero,"Entry"] <- "Febrero"
+vectoresCuatrimestre <-which(ingreso1819[,"Entry"] == "Cuatrimestral Full Time")
+ingreso1819[vectoresCuatrimestre,"Entry"] <- "Cuatrimestral"
+vectoresagosto <-which(ingreso1819[,"Entry"] == "Ingreso Agosto")
+ingreso1819[vectoresagosto,"Entry"] <- "Agosto"
+vectoresFebrero2 <- which(ingreso1819[,"Entry"] == "Febrero (Sede Pilar)")
+ingreso1819[vectoresFebrero2, "Entry"] <- "Febrero"
+vectoresCuatrimestreP <- which(ingreso1819[,"Entry"] == "Cuatrimestral Part Time")
+ingreso1819[vectoresCuatrimestreP,"Entry"] <- "Cuatrimestral"
+vectoresOctubre <- which(ingreso1819[,"Entry"] == "Octubre en Pilar")
+ingreso1819[vectoresOctubre,"Entry"]<- "Octubre"
+vectoresOctubreSI<-which(ingreso1819[,"Entry"] == "Octubre en San Isidro")
+ingreso1819[vectoresOctubreSI,"Entry"]<-"Octubre"
+vectoresSeptiembre2 <- which(ingreso1819[,"Entry"] == "Septiembre en Pilar")
+ingreso1819[vectoresSeptiembre2,"Entry"] <- "Septiembre"
+
 
 #Organizar Notas
 which(ingreso2018[, "Mat"] == "Desaprobado")
@@ -27,6 +52,11 @@ which(ingreso2018[,"Mat"] == "Es pase interno")
 ingreso2018[146, "Mat"] <- NA
 which(ingreso2018[,"Mat"] == "A")
 ingreso2018[82, "Mat"] <- 0
+
+names(ingreso1819)
+which(ingreso1819[,"Entry"] == "Octubre en San Isidro") 
+
+
 
 which(ingreso2018[, "Fis"] == "Desaprobado")
 ingreso2018[c(162),"Fis"] <- 1
@@ -92,7 +122,7 @@ ingreso2018[which(ingreso2018[,"GetsGrant"] == TRUE), "GottenGrant"] <- ingreso2
 # unique(ingreso2018[which(ingreso2018[,"Mat"] > 3) && which(ingreso2018[,"Fis"] > 3), "PromCI"])
 
 save(file = "ingreso2018.rdata", ingreso2018)
-
+save(file = "ingreso1819.rdata", ingreso1819)
 #__________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________-
 
 #Tnsert Ingreso 2019
