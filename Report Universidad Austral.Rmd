@@ -1,0 +1,267 @@
+---
+title: "Report Universidad Austral"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    highlight: kate
+    
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+
+
+![](logo_interno.png)
+
+
+# Introducción
+
+
+Se realizó un trabajo en el sistema R según información brindada por la universidad Austral sobre ingresantes en la carrera Ingeniería de los años 2018 y 2019. 
+El trabajo realizado consistió primero en adaptar los datos para que se puedan utilizar correctamente para una adecuada interpretación. 
+Posteriormente, el trabajo se basa en lo que encontraran en este informe a continuación.
+
+Se llevo acabo un resumen grafico de los datos para poder tener una idea general de los ingresantes de los cuales se acentúa el resto de la tarea. 
+
+Así pues, se obtuvieron distintas conclusiones sobre los ingresantes para tener en cuenta para futuras promociones, y se realizo un predictor académico, que podrá afirmar si una persona dejara o no la carrera en base a las notas en  los primeros parciales.
+
+
+
+# Resumen Gráfico de los datos
+
+En esta sección se verifican diferentes gráficos, los cuales resumen el contenido de los datos. A parir de ellos se verán plasmadas las aseveraciones elegidas.
+
+```{r resumen1}
+
+load(file = "ingreso.rdata")
+load("~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/finalQuals.RData")
+load(file = "analisisInd.rdata")
+load(file = "AnalisisInf.rdata")
+
+library(plotrix)
+
+careers <- table(ingreso$Career)
+
+table <- table(ingreso[which(ingreso$Sex == "F"), "PromCI"])
+
+ap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] > 3),"Name"]
+desap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] < 4),"Name"]
+desap <- desap[1:41]
+
+porcentajesBajas <- (table(ingreso$Status)/ length(ingreso$Status)) * 100
+porcentajesBajas <- as.integer(porcentajesBajas)
+
+ap <- rep("APROBADO", length(ap))
+desap <- rep("DESAPROBADO", length(desap))
+
+notas <- c(ap, desap)
+notas <- as.factor(notas)
+porcentajesNotas <- (table(notas) / length(notas)) * 100
+porcentajesNotas <- as.integer(porcentajesNotas)
+
+
+par(mfrow=c(2,2))
+
+barplot(careers,col = c("#F06C98","#36D88A", "#DFFB3F"),ylim=c(0,250),main="Distribucion Por Carrera",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4)
+
+pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matriculado", porcentajesBajas[2], "%")), col = c("#FE3F44", "#42E73A"), main = "Proporcion de Bajas")
+
+pie(table(notas), c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FE3F44"), main = "Aprobados Primeros Parciales")
+
+histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
+
+```
+Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
+
+En el primero se puede ver como están distribuidos los ingresantes dependiendo de la carrera a la cual ingresan. Esta información será muy útil en las conclusiones uno y tres.
+
+Por otro lado, en el segundo grafico, señala la proporción de bajas del curso de ingreso. Esto no es utilizado directamente, pero le dará contexto al predictor que se encuentra al final del informe.
+
+El tercer grafico exhibe la cantidad total de aprobados en los primeros parciales. Se juntaron todos, porque serán los datos utilizados en el predictor, y es importante preponderar que la gran mayoría desaprobó como mínimo un parcial.
+
+Por último, el histograma de los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo. 
+
+```{r resumen2}
+
+load(file = "ingreso.rdata")
+Schools <- table(ingreso$School)
+Schools <- as.data.frame(Schools)
+
+topSchools <- Schools[which(Schools[,"Freq"] > 10),]
+
+x <- barplot(topSchools$Freq,col = c("#FF7400", "#8BFF00" ,"#00FF74" ,"#008BFF" ,"#7400FF" ,"#FF008B"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,10))
+
+```
+Con este grafico de barras, destaramos los 6 colegios que producen mayor ingreso a la facultad. No hay conclusiones que utilicen esta información. Pero, parece importante recalcar en que colegio la facultad tiene mayor impacto.
+
+# 1ra Conclusión
+## Hipótesis
+
+El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
+```{r obj1.1}
+
+load(file = "ingreso.rdata")
+
+ingresoYearPerSex <- table(ingreso$Year, ingreso$Sex)
+ingresoYearPerSex
+
+ingresoSexperCareer <- table(ingreso$Sex, ingreso$Career)
+ingresoSexperCareer
+
+```
+
+La primera tabla totaliza la cantidad de estudiantes de Ingeniería según el sexo donde se ve reflejado que la cantidad de mujeres de 2018 a 2019 se incrementó en un 122% mientras que los hombres solo un 11%.
+
+
+La segunda tabla se toma como indicador las diferentes orientaciones de Ingeniería y los ingresantes según su sexo.
+ 
+
+Utilizaremos un gráfico de barraras para destacar el contraste entre la cantidad de mujeres y hombres en cada año.
+
+
+### BarPlot
+
+```{r obj1.2}
+
+library(plotrix)
+
+load(file = "ingreso.rdata")
+
+Year <- ingreso[, "Year"]
+
+df <- data.frame(ingreso$Year, ingreso$Sex, ingreso$Career) 
+df$ingreso.Career <- as.character(df$ingreso.Career)
+df[which(df$ingreso.Sex == "F"),"ingreso.Career"] <- paste(df[which(df$ingreso.Sex == "F"), "ingreso.Career"],"F")
+df[which(df$ingreso.Sex == "M"),"ingreso.Career"] <- paste(df[which(df[,"ingreso.Sex"] == "M"), "ingreso.Career"],"M")
+
+barplot(table(df$ingreso.Career,df$ingreso.Year),beside=TRUE, main = "Ingresantes Totales", legend.text = TRUE, ylim=c(0,100), col=c("#FF7F00" ,"#80FF00", "#00FF7F", "#0080FF" ,"#7F00FF" ,"#FF0080"))
+
+```
+Al observar ambos gráficos podemos constatar que la incorporación de Ingeniería Biomédica aumento el alumnado. Es notable que esta especialidad es elegida mayormente por mujeres, logrando el aumento significativo de las mujeres estudiantes en Ingeniería.
+
+Se observa un aumento del 40% en la totalidad del alumnado de Ingeniería entre 2018 y 2019. De ese incremento, el 62.5% pertenecen a Ingeniería Biomédicas y el 37.5% al resto de las orientaciones. 
+
+En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años.
+
+
+
+
+
+# 2da Conclusión
+## Hipótesis
+
+Matemática del curso de ingreso es mas exigente que Física.
+
+### BoxPlot
+
+``` {r obj2}
+
+
+dataMat <- data.frame(ingreso$Mat, ingreso$Career)
+
+dataFis <- data.frame(ingreso$Fis, ingreso$Career)
+
+dataMat[,"ingreso.Career"] <- paste(" ", dataMat[,"ingreso.Career"])
+names(dataMat) <- c("Grade", "Career")
+dataFis[,"ingreso.Career"] <- paste("  ", dataFis[,"ingreso.Career"])
+names(dataFis) <- c("Grade", "Career")
+
+
+data <- merge.data.frame(dataFis, dataMat, all = TRUE)
+
+boxplot(data$Grade~data$Career, col = c("#3CF0A9" ,"#F03C83" ,"#F0A93C"), xlab = "Materia por Carrera", ylab = "Notas", main = "Fisica                                     Matematica")
+
+
+
+```
+
+
+Al observar el gráfico Boxplot lo primero que se debe saber es lo que representa. En los extremos se encuentran los valores mínimos y máximos, el medio es el área con mayor densidad de los datos y su línea representa el valor medio.
+
+Se puede ver de forma notable que la media en función a la materia Física es mucho más alta que la de Matemática, sin importar la carrera. 
+
+Esto se debe a distintos factores que se pueden suponer:
+
+* Física es más fácil que Matemática en el curso de ingreso.
+* Los alumnos tienden a aprender con más facilidad los contenidos de Física que los de Matemática.
+* La corrección del examen de Matemática es más exigente.
+
+En conclusión, se puede observar en los ingresantes de 2018 y 2019 que se obtienen mejores notas en Física que en Matemática. Es mas, sin importar cual sea la razón de las listadas previamente, las tres concluyen afirmando la hipótesis.
+
+
+# 3ra Conclusion
+
+## Hipótesis
+
+La carrera Ingeniería industrial suele tener mejor nota en Análisis Matemático I a diferencia de Ingeniería Informática.
+
+```{r obj 3}
+
+load(file = "analisisInd.rdata")
+load(file = "analisisInf.rdata")
+
+library(ggplot2)
+
+AnalisisInd[,4] <- "IND"
+AnalisisInf[,4] <- "INF"
+
+analisis <- merge.data.frame(AnalisisInd, AnalisisInf, all = TRUE)
+
+names(analisis) <- c("names", "Nota", "Prom",  "Career")
+
+Nota <- analisis$Nota
+Career <- analisis$Career
+
+analisis <- analisis[,-3]
+
+analisis$Nota <- as.numeric(analisis$Nota)
+analisis$Career <- as.factor(analisis$Career)
+
+library(plyr)
+
+p<-ggplot(analisis, aes(x=Nota, fill=Career)) +
+  geom_density(alpha=0.7)
+p + scale_fill_manual(values=c("#00FF7F", "orange")) + theme(aspect.ratio = 0.7) + labs(title = "Notas de Analisis 1", subtitle = "Grafico de Densidad") +   theme(plot.title = element_text(size = 35, face = "bold")) +  theme(
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA)
+        )
+```
+
+Para poder entender el gráfico de densidad debemos saber de qué se trata.
+La densidad es una variación del Histograma que utiliza una curva para trazar los valores medios. Son dos distribuciones normales que demuestran cuan diferentes son los picos, en donde los valores se concentran respecto a las notas.
+
+Los datos con los que se formaron las distribuciones son veintiséis personas de Ingeniería Informática y cincuenta y uno de Ingeniería Industrial. Esto es importante ya que, a la hora de observar el gráfico, la media de industrial es mucho más alta que informática.
+
+De los veintiséis alumnos Informáticos solo el 42% obtuvo una nota mayor o igual a cuatro, mientras que en los industriales el 63% se encuentra entre los aprobados. 
+
+Si observamos el gráfico podemos notar que aproximadamente la mitad de alumnos Industriales aprueban el parcial con media de cuatro, lo cual no sucede así con informática ya que su media es tres. 
+
+Existe una gran diferencia además del valor de su media y es que si nos concentramos solo en los estudiantes industriales aprobados podemos asegurar que existen alumnos con notas entre cinco y nueve, lo cual no sucede con informática que tiene un pico en cuatro y luego el resto de las notas se mantiene constante en cero.
+
+De esta manera podemos afianzar la hipótesis que Ingeniería Industrial obtiene mejores notas en el parcial de Análisis Matemático I.
+
+
+
+
+
+
+
+
+
+
