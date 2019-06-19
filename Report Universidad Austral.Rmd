@@ -44,17 +44,14 @@ Así pues, se obtuvieron distintas conclusiones sobre las matriculas para tener 
 
 En esta sección se verifican diferentes gráficos, los cuales resumen el contenido de los datos. A partir de ellos se verán plasmadas las aseveraciones elegidas.
 
-```{r resumen1}
-
+```{r resumen1, echo=FALSE, cache=FALSE}
 load(file = "ingreso.rdata")
 load("finalQuals.RData")
 load(file = "analisisInd.rdata")
 load(file = "AnalisisInf.rdata")
-
 library(plotrix)
 
 careers <- table(ingreso$Career)
-
 table <- table(ingreso[which(ingreso$Sex == "F"), "PromCI"])
 
 ap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] > 3),"Name"]
@@ -69,9 +66,9 @@ desap <- rep("DESAPROBADO", length(desap))
 
 notas <- c(ap, desap)
 notas <- as.factor(notas)
+
 porcentajesNotas <- (table(notas) / length(notas)) * 100
 porcentajesNotas <- as.integer(porcentajesNotas)
-
 
 par(mfrow=c(2,2))
 
@@ -82,7 +79,6 @@ pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matr
 pie(table(notas), c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FE3F44"), main = "Aprobados Primeros Parciales")
 
 histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
-
 ```
 Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
 
@@ -94,7 +90,7 @@ El tercer gráfico exhibe la cantidad total de aprobados en los primeros parcial
 
 Por último, el histograma de los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo. 
 
-```{r resumen2}
+```{r resumen2, echo=FALSE, cache=FALSE}
 
 load(file = "ingreso.rdata")
 Schools <- table(ingreso$School)
@@ -102,16 +98,16 @@ Schools <- as.data.frame(Schools)
 
 topSchools <- Schools[which(Schools[,"Freq"] > 10),]
 
-x <- barplot(topSchools$Freq,col = c("#FF7400", "#8BFF00" ,"#00FF74" ,"#008BFF" ,"#7400FF" ,"#FF008B"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,10))
+x <- barplot(topSchools$Freq,col = c("#FF7400", "#AFFF00", "#00FF2B", "#00F8FF", "#001EFF", "#BD00FF", "#FF0067"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,12))
 
 ```
-Con este gráfico de barras, destacamos los 6 colegios que producen mayor ingreso a la facultad. No hay conclusiones que utilicen esta información. Pero, parece importante recalcar en qué colegio la facultad tiene mayor impacto.
+Con este gráfico de barras, destacamos los 7 colegios que producen mayor ingreso a la facultad. No hay conclusiones que utilicen esta información. Pero, parece importante recalcar en qué colegio la facultad tiene mayor impacto.
 
 # 1ra Conclusión
 ## Hipótesis
 
 El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
-```{r obj1.1}
+```{r obj1.1, echo=FALSE, cache=FALSE}
 
 load(file = "ingreso.rdata")
 
@@ -134,7 +130,7 @@ Utilizaremos un gráfico de barraras para destacar el contraste entre la cantida
 
 ### BarPlot
 
-```{r obj1.2}
+```{r obj1.2, echo=FALSE, cache=FALSE}
 
 library(plotrix)
 
@@ -157,9 +153,6 @@ Se observa un aumento del 40% en la totalidad del alumnado de Ingeniería entre 
 En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años.
 
 
-
-
-
 # 2da Conclusión
 ## Hipótesis
 
@@ -167,7 +160,7 @@ Matemática del curso de ingreso es mas exigente que Física.
 
 ### BoxPlot
 
-``` {r obj2}
+``` {r obj2, echo=FALSE, cache=FALSE}
 
 
 dataMat <- data.frame(ingreso$Mat, ingreso$Career)
@@ -208,7 +201,7 @@ En conclusión, se puede observar en los ingresantes de 2018 y 2019 que se obtie
 
 La carrera Ingeniería industrial suele tener mejor nota en Análisis Matemático I a diferencia de Ingeniería Informática.
 
-```{r obj 3}
+```{r obj3, echo=FALSE, cache=FALSE}
 
 load(file = "analisisInd.rdata")
 load(file = "analisisInf.rdata")
@@ -263,9 +256,11 @@ De esta manera podemos afianzar la hipótesis que Ingeniería Industrial obtiene
 La cantidad de becas otorgadas es inconsistente a lo largo del año.
 
 ### Stacked BarPlot 
-```{r obj4}
+```{r obj4, echo=FALSE, cache=FALSE}
+load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/INGRESOS.rdata")
+library(plotrix)
 
-
+barplot(table(INGRESOS$Obtiene..BECA,INGRESOS$Ingreso),main="Becas obtenidas por ingreso", ylab ="Cantidad de ingresantes",xlab="Instancia del curso",las=1,font.axis=2,col=c("#e09caf","#9ce0cd"),legend.text = c("No obtiene beca","Obtiene beca"))
 
 ```
 
@@ -286,9 +281,35 @@ En base a esto, se puede notar una gran diferencia en la densidad de becas. Teni
 En conclusión, esta falta de homogeneidad de los cursos, puede causar la inconsistencia en la cantidad de becas otorgadas a la cual nos referimos, así, validando nuestra hipótesis.
 
 
+# Predicción
 
+```{r predic, cache = FALSE}
+load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/model_gbm.rdata")
+library(shiny)
+fluidPage(
+  titlePanel("Predicctión"),
+  sidebarLayout(
+    sidebarPanel(
+      analisis <- numericInput("numInput", "Ingresar nota de analisis", value = 3, min = 0, max = 10),
+      algebra1 <- numericInput("numInput", "Ingresar nota del primer examen de algebra", value = 5, min = 0, max = 10),  algebra2 <- numericInput("numInput", "Ingresar nota del segundo examen de algebra", value = 2, min = 0, max = 10),  introProg <- numericInput("numInput", "Ingresar nota de Intro a Prog", value = 4, min = 0, max = 10)
+       ), mainPanel("Explicacion de la prediccion..., esto puede ser bien largo. Tipo yo puedo escribir bastante, cosa de poder explicar bien de que se trata el trabajo que estamos realizando."
+    )
+  )
+)
 
+load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/model_gbm.rdata")
+analisis <- analisis$attribs
+algebra1 <- algebra1$attribs
+algebra2 <- algebra2$attribs
+introProg <- introProg$attribs
 
+student <- data.frame(analisis,introProg,algebra1,algebra2)
+
+predictors <- c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+ 
+predict(model_gbm,student[, 1:length(student)])
+
+```
 
 
 
