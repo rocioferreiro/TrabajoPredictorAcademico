@@ -1,0 +1,12 @@
+name: predict
+title: predict
+username:
+account: rocioferreiro
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 990478
+bundleId: 2167134
+url: https://rocioferreiro.shinyapps.io/predict/
+when: 1561052527.83431
+asMultiple: FALSE
+asStatic: FALSE

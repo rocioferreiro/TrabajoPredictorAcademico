@@ -27,7 +27,6 @@ opts_knit$set(width=75)
 
 ![](logo_interno.png)
 
-
 # Introducción
 
 
@@ -161,8 +160,6 @@ Matemática del curso de ingreso es mas exigente que Física.
 ### BoxPlot
 
 ``` {r obj2, echo=FALSE, cache=FALSE}
-
-
 dataMat <- data.frame(ingreso$Mat, ingreso$Career)
 
 dataFis <- data.frame(ingreso$Fis, ingreso$Career)
@@ -176,8 +173,6 @@ names(dataFis) <- c("Grade", "Career")
 data <- merge.data.frame(dataFis, dataMat, all = TRUE)
 
 boxplot(data$Grade~data$Career, col = c("#3CF0A9" ,"#F03C83" ,"#F0A93C"), xlab = "Materia por Carrera", ylab = "Notas", main = "Fisica                                     Matematica")
-
-
 
 ```
 
@@ -283,7 +278,157 @@ En conclusión, esta falta de homogeneidad de los cursos, puede causar la incons
 
 # Predicción
 
+En esta sección del informe, se desarrollará en que consiste el predictor, los distintos modelos utilizados, con una prueba al final de todos ellos. 
 
-[prediction](http://127.0.0.1:4982/)
+En base a los datos que se estuvieron analizando, de los cueles solo extrajimos las notas de los primeros parciales y las bajas, se crearon varios modelos que son capases de predecir si una persona dejara o no la carrera utilizando como parámetros, sus notas en los primeros parciales. Siendo estos, Análisis I, los dos parciales de Algebra I y la nota de Introducción a la Programación I.
+
+Se elaboraron cuatro distintos modelos para llevar a cabo dicha predicción.
+
+## GBM
+
+Primero, se produjo un modelo GBM, modelo de incremento estocástico del gradiente, en el cual los parámetros se ajustan con el gradiente de la función de pérdida con cada ejemplo de los datos usados para entrenar el modelo. El termino estocástico hace referencia a que cada ejemplo es elegido de manera aleatoria antes de comenzar el entrenamiento.
+
+```{r predicGBM, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+library(gbm)
+load("finalQuals.RData")
+load(file = "GBM/model_gbm.rdata")
+load(file = "GBM/predictions.rdata")
+load(file ="GBM/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "GBM Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_gbm),main="GBM - Variable Importance")
+plotROC(predaux)
+
+```
+
+## Random Forest
+
+Luego, generamos un modelo RandomForest, "Bosques Aleatorios" es una combinación de árboles predictores tal que cada árbol depende de los valores de un vector aleatorio probado independientemente y con la misma distribución para cada uno de estos. Construye una colección de árboles no correlacionados y luego los promedia.
+
+```{r predicRF, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "RF/model_rf.rdata")
+load(file = "RF/predictions.rdata")
+load(file ="RF/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "RandomForest Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_rf),main="RandomForest - Variable Importance")
+
+plotROC(predaux)
+
+```
+
+## NNET
+
+Seguidamente, elaboramos un modelo NNET, modelo con una red neuronal. Las redes neuronales artificiales son un modelo vagamente inspirado en el comportamiento observado en su homólogo biológico. Consiste en un conjunto de unidades, llamadas neuronas artificiales, conectadas entre sí para transmitirse señales. La información de entrada atraviesa la red neuronal, donde se somete a diversas operaciones, produciendo unos valores de salida.
+
+```{r predicNNET, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "NNET/model_nnet.rdata")
+load(file = "NNET/predictions.rdata")
+load(file ="NNET/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "NNET Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_nnet),main="NNET - Variable Importance")
+
+plotROC(predaux)
+
+```
+
+## GLM
+
+Por ultimo, producimos un modelo GLM, modelo lineal generalizado. El modelo lineal generalizado es una generalización flexible de la regresión lineal ordinaria. Permite que el modelo lineal esté relacionado con la variable de respuesta a través de una función de enlace y permite también que la magnitud de la varianza de cada medición sea una funciÍón de su valor predicho.
+
+```{r predicGLM, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "GLM/model_glm.rdata")
+load(file = "GLM/predictions.rdata")
+load(file ="GLM/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "GLM Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_glm),main="GLM - Variable Importance")
+
+plotROC(predaux)
+
+```
+
+
+## Predictor
+
+Cliqueando en el siguiente enlace, se encontrarán con una prueba que te permite predecir si un alumno dejará o no la carrera, tras ingresar cuatro notas. Se podrá elegir el modelo en base cual se quiera predecir.
+
+## [prediction](http://127.0.0.1:4982/)
 
 

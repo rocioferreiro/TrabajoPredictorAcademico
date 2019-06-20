@@ -111,16 +111,16 @@ varImp(object=model_glm) #AUC 0.85
 
 predictor <- function(analisis, algebra1, algebra2, prog, model, output){
   if(model == "gbm"){
-    load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/GBM/model_gbm.rdata")
+    load(file = "GBM/model_gbm.rdata")
     finalModel <- model_gbm
   } else if(model == "randomForest"){
-    load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/RF/model_rf.rdata")
+    load(file = "RF/model_rf.rdata")
     finalModel <- model_rf
   } else if(model == "nnet"){
-    load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/NNET/model_nnet.rdata")
+    load(file = "NNET/model_nnet.rdata")
     finalModel <- model_nnet
   } else {
-    load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/GLM/model_glm.rdata")
+    load(file = "GLM/model_glm.rdata")
     finalModel <- model_glm
   }
   student <- data.frame(analisis,algebra1,algebra2,prog)
@@ -129,5 +129,5 @@ predictor <- function(analisis, algebra1, algebra2, prog, model, output){
   output <- predict(finalModel,student)
 }
 
-save(file = "predictionFunction.rdata", predictor)
+save(file = "predict/predictionFunction.rdata", predictor)
 
