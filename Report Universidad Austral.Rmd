@@ -283,37 +283,7 @@ En conclusión, esta falta de homogeneidad de los cursos, puede causar la incons
 
 # Predicción
 
-```{r predic, cache = FALSE}
-load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/model_gbm.rdata")
-library(shiny)
-fluidPage(
-  titlePanel("Predicctión"),
-  sidebarLayout(
-    sidebarPanel(
-      analisis <- numericInput("numInput", "Ingresar nota de analisis", value = 3, min = 0, max = 10),
-      algebra1 <- numericInput("numInput", "Ingresar nota del primer examen de algebra", value = 5, min = 0, max = 10),  algebra2 <- numericInput("numInput", "Ingresar nota del segundo examen de algebra", value = 2, min = 0, max = 10),  introProg <- numericInput("numInput", "Ingresar nota de Intro a Prog", value = 4, min = 0, max = 10)
-       ), mainPanel("Explicacion de la prediccion..., esto puede ser bien largo. Tipo yo puedo escribir bastante, cosa de poder explicar bien de que se trata el trabajo que estamos realizando."
-    )
-  )
-)
 
-load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/model_gbm.rdata")
-analisis <- analisis$attribs
-algebra1 <- algebra1$attribs
-algebra2 <- algebra2$attribs
-introProg <- introProg$attribs
-
-student <- data.frame(analisis,introProg,algebra1,algebra2)
-
-predictors <- c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
- 
-predict(model_gbm,student[, 1:length(student)])
-
-```
-
-
-
-
-
+[prediction](http://127.0.0.1:4982/)
 
 
