@@ -27,7 +27,6 @@ opts_knit$set(width=75)
 
 ![](logo_interno.png)
 
-
 # Introducción
 
 
@@ -44,17 +43,14 @@ Así pues, se obtuvieron distintas conclusiones sobre las matriculas para tener 
 
 En esta sección se verifican diferentes gráficos, los cuales resumen el contenido de los datos. A partir de ellos se verán plasmadas las aseveraciones elegidas.
 
-```{r resumen1}
-
+```{r resumen1, echo=FALSE, cache=FALSE}
 load(file = "ingreso.rdata")
 load("finalQuals.RData")
 load(file = "analisisInd.rdata")
 load(file = "AnalisisInf.rdata")
-
 library(plotrix)
 
 careers <- table(ingreso$Career)
-
 table <- table(ingreso[which(ingreso$Sex == "F"), "PromCI"])
 
 ap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] > 3),"Name"]
@@ -69,9 +65,9 @@ desap <- rep("DESAPROBADO", length(desap))
 
 notas <- c(ap, desap)
 notas <- as.factor(notas)
+
 porcentajesNotas <- (table(notas) / length(notas)) * 100
 porcentajesNotas <- as.integer(porcentajesNotas)
-
 
 par(mfrow=c(2,2))
 
@@ -82,7 +78,6 @@ pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matr
 pie(table(notas), c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FE3F44"), main = "Aprobados Primeros Parciales")
 
 histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
-
 ```
 Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
 
@@ -94,7 +89,7 @@ El tercer gráfico exhibe la cantidad total de aprobados en los primeros parcial
 
 Por último, el histograma de los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo. 
 
-```{r resumen2}
+```{r resumen2, echo=FALSE, cache=FALSE}
 
 load(file = "ingreso.rdata")
 Schools <- table(ingreso$School)
@@ -102,16 +97,16 @@ Schools <- as.data.frame(Schools)
 
 topSchools <- Schools[which(Schools[,"Freq"] > 10),]
 
-x <- barplot(topSchools$Freq,col = c("#FF7400", "#8BFF00" ,"#00FF74" ,"#008BFF" ,"#7400FF" ,"#FF008B"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,10))
+x <- barplot(topSchools$Freq,col = c("#FF7400", "#AFFF00", "#00FF2B", "#00F8FF", "#001EFF", "#BD00FF", "#FF0067"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,12))
 
 ```
-Con este gráfico de barras, destacamos los 6 colegios que producen mayor ingreso a la facultad. No hay conclusiones que utilicen esta información. Pero, parece importante recalcar en qué colegio la facultad tiene mayor impacto.
+Con este gráfico de barras, destacamos los 7 colegios que producen mayor ingreso a la facultad. No hay conclusiones que utilicen esta información. Pero, parece importante recalcar en qué colegio la facultad tiene mayor impacto.
 
 # 1ra Conclusión
 ## Hipótesis
 
 El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
-```{r obj1.1}
+```{r obj1.1, echo=FALSE, cache=FALSE}
 
 load(file = "ingreso.rdata")
 
@@ -134,7 +129,7 @@ Utilizaremos un gráfico de barraras para destacar el contraste entre la cantida
 
 ### BarPlot
 
-```{r obj1.2}
+```{r obj1.2, echo=FALSE, cache=FALSE}
 
 library(plotrix)
 
@@ -157,9 +152,6 @@ Se observa un aumento del 40% en la totalidad del alumnado de Ingeniería entre 
 En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años.
 
 
-
-
-
 # 2da Conclusión
 ## Hipótesis
 
@@ -167,9 +159,7 @@ Matemática del curso de ingreso es mas exigente que Física.
 
 ### BoxPlot
 
-``` {r obj2}
-
-
+``` {r obj2, echo=FALSE, cache=FALSE}
 dataMat <- data.frame(ingreso$Mat, ingreso$Career)
 
 dataFis <- data.frame(ingreso$Fis, ingreso$Career)
@@ -183,8 +173,6 @@ names(dataFis) <- c("Grade", "Career")
 data <- merge.data.frame(dataFis, dataMat, all = TRUE)
 
 boxplot(data$Grade~data$Career, col = c("#3CF0A9" ,"#F03C83" ,"#F0A93C"), xlab = "Materia por Carrera", ylab = "Notas", main = "Fisica                                     Matematica")
-
-
 
 ```
 
@@ -208,7 +196,7 @@ En conclusión, se puede observar en los ingresantes de 2018 y 2019 que se obtie
 
 La carrera Ingeniería industrial suele tener mejor nota en Análisis Matemático I a diferencia de Ingeniería Informática.
 
-```{r obj 3}
+```{r obj3, echo=FALSE, cache=FALSE}
 
 load(file = "analisisInd.rdata")
 load(file = "analisisInf.rdata")
@@ -263,9 +251,12 @@ De esta manera podemos afianzar la hipótesis que Ingeniería Industrial obtiene
 La cantidad de becas otorgadas es inconsistente a lo largo del año.
 
 ### Stacked BarPlot 
-```{r obj4}
+```{r obj4, echo=FALSE, cache=FALSE}
+load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/INGRESOS.rdata")
+library(plotrix)
+library(colortools)
 
-
+barplot(table(INGRESOS$Obtiene..BECA,INGRESOS$Ingreso),main="Becas obtenidas por ingreso", ylab ="Cantidad de ingresantes",xlab="Instancia del curso",las=1,font.axis=2,col=c("#FFAE00","#B2F63D"),legend.text = c("No obtiene beca","Obtiene beca"))
 
 ```
 
@@ -286,13 +277,159 @@ En base a esto, se puede notar una gran diferencia en la densidad de becas. Teni
 En conclusión, esta falta de homogeneidad de los cursos, puede causar la inconsistencia en la cantidad de becas otorgadas a la cual nos referimos, así, validando nuestra hipótesis.
 
 
+# Predicción
+
+En esta sección del informe, se desarrollará en que consiste el predictor, los distintos modelos utilizados, con una prueba al final de todos ellos. 
+
+En base a los datos que se estuvieron analizando, de los cueles solo extrajimos las notas de los primeros parciales y las bajas, se crearon varios modelos que son capases de predecir si una persona dejara o no la carrera utilizando como parámetros, sus notas en los primeros parciales. Siendo estos, Análisis I, los dos parciales de Algebra I y la nota de Introducción a la Programación I.
+
+Se elaboraron cuatro distintos modelos para llevar a cabo dicha predicción.
+
+## GBM
+
+Primero, se produjo un modelo GBM, modelo de incremento estocástico del gradiente, en el cual los parámetros se ajustan con el gradiente de la función de pérdida con cada ejemplo de los datos usados para entrenar el modelo. El termino estocástico hace referencia a que cada ejemplo es elegido de manera aleatoria antes de comenzar el entrenamiento.
+
+```{r predicGBM, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+library(gbm)
+load("finalQuals.RData")
+load(file = "GBM/model_gbm.rdata")
+load(file = "GBM/predictions.rdata")
+load(file ="GBM/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "GBM Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_gbm),main="GBM - Variable Importance")
+plotROC(predaux)
+
+```
+
+## Random Forest
+
+Luego, generamos un modelo RandomForest, "Bosques Aleatorios" es una combinación de árboles predictores tal que cada árbol depende de los valores de un vector aleatorio probado independientemente y con la misma distribución para cada uno de estos. Construye una colección de árboles no correlacionados y luego los promedia.
+
+```{r predicRF, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "RF/model_rf.rdata")
+load(file = "RF/predictions.rdata")
+load(file ="RF/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "RandomForest Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_rf),main="RandomForest - Variable Importance")
+
+plotROC(predaux)
+
+```
+
+## NNET
+
+Seguidamente, elaboramos un modelo NNET, modelo con una red neuronal. Las redes neuronales artificiales son un modelo vagamente inspirado en el comportamiento observado en su homólogo biológico. Consiste en un conjunto de unidades, llamadas neuronas artificiales, conectadas entre sí para transmitirse señales. La información de entrada atraviesa la red neuronal, donde se somete a diversas operaciones, produciendo unos valores de salida.
+
+```{r predicNNET, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "NNET/model_nnet.rdata")
+load(file = "NNET/predictions.rdata")
+load(file ="NNET/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "NNET Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_nnet),main="NNET - Variable Importance")
+
+plotROC(predaux)
+
+```
+
+## GLM
+
+Por ultimo, producimos un modelo GLM, modelo lineal generalizado. El modelo lineal generalizado es una generalización flexible de la regresión lineal ordinaria. Permite que el modelo lineal esté relacionado con la variable de respuesta a través de una función de enlace y permite también que la magnitud de la varianza de cada medición sea una funciÍón de su valor predicho.
+
+```{r predicGLM, echo = FALSE, cache = FALSE}
+
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "GLM/model_glm.rdata")
+load(file = "GLM/predictions.rdata")
+load(file ="GLM/testSet.rdata")
+
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf, main = "GLM Model")
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
+
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+
+perf <- performance(predaux, "auc")
+
+plot(varImp(object = model_glm),main="GLM - Variable Importance")
+
+plotROC(predaux)
+
+```
 
 
+## Predictor
 
+Cliqueando en el siguiente enlace, se encontrarán con una prueba que te permite predecir si un alumno dejará o no la carrera, tras ingresar cuatro notas. Se podrá elegir el modelo en base cual se quiera predecir.
 
-
-
-
-
+## [prediction](https://rocioferreiro.shinyapps.io/predict/)
 
 
