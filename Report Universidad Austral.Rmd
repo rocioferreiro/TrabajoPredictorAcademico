@@ -41,24 +41,51 @@ Así pues, se obtuvieron distintas conclusiones sobre las matriculas para tener 
 
 # Resumen Gráfico de los datos
 
-En esta sección se verifican diferentes gráficos, los cuales resumen el contenido de los datos. A partir de ellos se verán plasmadas las aseveraciones elegidas.
+### Información de Ingresantes
 
 ```{r resumen1, echo=FALSE, cache=FALSE}
 load(file = "ingreso.rdata")
-load("finalQuals.RData")
 load(file = "analisisInd.rdata")
 load(file = "AnalisisInf.rdata")
 library(plotrix)
+library(colortools)
 
 careers <- table(ingreso$Career)
 table <- table(ingreso[which(ingreso$Sex == "F"), "PromCI"])
 
+porcentajesBajas <- (table(ingreso$Status)/ length(ingreso$Status)) * 100
+porcentajesBajas <- as.integer(porcentajesBajas)
+
+par(mfrow=c(2,2))
+
+barplot(careers,col = c("#F06C98","#36D88A", "#DFFB3F"),ylim=c(0,250),main="Distribución Por Carrera",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4)
+
+histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
+
+pie(table(ingreso$Entry), main = "Convocatoria por curso de Ingreso", radius = 1, col = c("#85FF40", "#40FF7B", "#40FFFA", "#4085FF", "#7B40FF", "#FA40FF", "#FF4085", "#FF7B40", "#FFFA40"))
+
+pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matriculado", porcentajesBajas[2], "%")), col = c("#FF4085", "#40FF7B"), main = "Proporción de Bajas", radius = 1)
+```
+Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
+
+En el primero se puede ver cómo están distribuidos los ingresantes dependiendo de la carrera a la cual ingresan. Esta información será muy útil en las conclusiones uno y tres.
+
+El segundo grafico, el cual es sobre los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo.
+
+El tercer grafico, muestra la desproporcion en convocatoria de los distintos cursos. Informacion que utilizaremos en futuras conclusiones.
+
+EL último señala la proporción de bajas del curso de ingreso. Esto no es utilizado directamente, pero le dará contexto al predictor que se encuentra al final del informe.
+
+### Rendimiento Académico 
+
+```{r notas, echo = FALSE, cache = FALSE}
+
+library(plotrix)
+load("finalQuals.RData")
+
 ap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] > 3),"Name"]
 desap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] < 4),"Name"]
 desap <- desap[1:41]
-
-porcentajesBajas <- (table(ingreso$Status)/ length(ingreso$Status)) * 100
-porcentajesBajas <- as.integer(porcentajesBajas)
 
 ap <- rep("APROBADO", length(ap))
 desap <- rep("DESAPROBADO", length(desap))
@@ -69,25 +96,10 @@ notas <- as.factor(notas)
 porcentajesNotas <- (table(notas) / length(notas)) * 100
 porcentajesNotas <- as.integer(porcentajesNotas)
 
-par(mfrow=c(2,2))
+pie3D(table(notas), labels = c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FF7400"), main = "Aprobados Primeros Parciales", explode = 0.1)
 
-barplot(careers,col = c("#F06C98","#36D88A", "#DFFB3F"),ylim=c(0,250),main="Distribución Por Carrera",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4)
-
-pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matriculado", porcentajesBajas[2], "%")), col = c("#FE3F44", "#42E73A"), main = "Proporción de Bajas")
-
-pie(table(notas), c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FE3F44"), main = "Aprobados Primeros Parciales")
-
-histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
 ```
-Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
-
-En el primero se puede ver cómo están distribuidos los ingresantes dependiendo de la carrera a la cual ingresan. Esta información será muy útil en las conclusiones uno y tres.
-
-Por otro lado, en el segundo gráfico, señala la proporción de bajas del curso de ingreso. Esto no es utilizado directamente, pero le dará contexto al predictor que se encuentra al final del informe.
-
-El tercer gráfico exhibe la cantidad total de aprobados en los primeros parciales. Se juntaron todos, porque serán los datos utilizados en el predictor, y es importante preponderar que la gran mayoría desaprobó como mínimo un parcial.
-
-Por último, el histograma de los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo. 
+El  gráfico exhibe la cantidad total de aprobados en los primeros parciales. Se juntaron todos, porque serán los datos utilizados en el predictor, y es importante preponderar que la gran mayoría desaprobó como mínimo un parcial.
 
 ```{r resumen2, echo=FALSE, cache=FALSE}
 
