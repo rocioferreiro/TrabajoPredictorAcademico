@@ -254,8 +254,9 @@ La cantidad de becas otorgadas es inconsistente a lo largo del año.
 ```{r obj4, echo=FALSE, cache=FALSE}
 load(file = "~/Desktop/TpPredictorAcademico/TrabajoPredictorAcademico/INGRESOS.rdata")
 library(plotrix)
+library(colortools)
 
-barplot(table(INGRESOS$Obtiene..BECA,INGRESOS$Ingreso),main="Becas obtenidas por ingreso", ylab ="Cantidad de ingresantes",xlab="Instancia del curso",las=1,font.axis=2,col=c("#e09caf","#9ce0cd"),legend.text = c("No obtiene beca","Obtiene beca"))
+barplot(table(INGRESOS$Obtiene..BECA,INGRESOS$Ingreso),main="Becas obtenidas por ingreso", ylab ="Cantidad de ingresantes",xlab="Instancia del curso",las=1,font.axis=2,col=c("#FFAE00","#B2F63D"),legend.text = c("No obtiene beca","Obtiene beca"))
 
 ```
 
@@ -429,6 +430,6 @@ plotROC(predaux)
 
 Cliqueando en el siguiente enlace, se encontrarán con una prueba que te permite predecir si un alumno dejará o no la carrera, tras ingresar cuatro notas. Se podrá elegir el modelo en base cual se quiera predecir.
 
-## [prediction](http://127.0.0.1:4982/)
+## [prediction](https://rocioferreiro.shinyapps.io/predict/)
 
 
