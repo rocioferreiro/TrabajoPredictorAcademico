@@ -112,6 +112,29 @@ x <- barplot(topSchools$Freq,col = c("#FF7400", "#AFFF00", "#00FF2B", "#00F8FF",
 ```
 Si bien los alumnos vienen de multiples colegios, ya que tenemos 383 alumnos provenientes de 150 colegios diferentes, cabe destacar estos 7 colegios quienes aportan la mayor cantidad de ingresantes a la universidad.
 
+# Impacto de Biomédica
+### El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
+
+Utilizaremos un gráfico para destacar el contraste entre la cantidad de mujeres y hombres en cada año y carrera.
+
+
+```{r obj1.2, echo=FALSE, cache=FALSE}
+library(plotrix)
+load(file = "ingreso.rdata")
+Year <- ingreso[, "Year"]
+df <- data.frame(ingreso$Year, ingreso$Sex, ingreso$Career) 
+df$ingreso.Career <- as.character(df$ingreso.Career)
+df[which(df$ingreso.Sex == "F"),"ingreso.Career"] <- paste(df[which(df$ingreso.Sex == "F"), "ingreso.Career"],"F")
+df[which(df$ingreso.Sex == "M"),"ingreso.Career"] <- paste(df[which(df[,"ingreso.Sex"] == "M"), "ingreso.Career"],"M")
+barplot(table(df$ingreso.Career,df$ingreso.Year),beside=TRUE, main = "Ingresantes Totales", legend.text = TRUE, ylim=c(0,100), col=c("#FF7F00" ,"#80FF00", "#00FF7F", "#0080FF" ,"#7F00FF" ,"#FF0080"))
+```
+
+Al observar ambos gráficos podemos constatar que la incorporación de Ingeniería Biomédica aumentó el alumnado. Es notable que esta especialidad es elegida mayormente por mujeres, logrando el aumento significativo de ingresantes mujeres, siendo este de un 84%.
+
+Se observa un aumento del 13% en la totalidad del alumnado de Ingeniería entre 2018 y 2019. De ese incremento, el 62.5% pertenecen a Ingeniería Biomédicas y el 37.5% al resto de las orientaciones. 
+
+En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años, a pesar de haber disminuido en un 3% respecto a 2018.
+
 # Rendimiento en el ingreso
 ### Matemática del curso de ingreso es mas exigente que Física.
 
@@ -138,29 +161,6 @@ Esto se debe a distintos factores que se pueden suponer:
 * La corrección del examen de Matemática es más exigente.
 
 En conclusión, se puede observar en los ingresantes de 2018 y 2019 que se obtienen mejores notas en Física que en Matemática, indiferente de cual sea el justificativo de esto.
-
-# Impacto de Biomédica
-### El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
-
-Utilizaremos un gráfico para destacar el contraste entre la cantidad de mujeres y hombres en cada año y carrera.
-
-
-```{r obj1.2, echo=FALSE, cache=FALSE}
-library(plotrix)
-load(file = "ingreso.rdata")
-Year <- ingreso[, "Year"]
-df <- data.frame(ingreso$Year, ingreso$Sex, ingreso$Career) 
-df$ingreso.Career <- as.character(df$ingreso.Career)
-df[which(df$ingreso.Sex == "F"),"ingreso.Career"] <- paste(df[which(df$ingreso.Sex == "F"), "ingreso.Career"],"F")
-df[which(df$ingreso.Sex == "M"),"ingreso.Career"] <- paste(df[which(df[,"ingreso.Sex"] == "M"), "ingreso.Career"],"M")
-barplot(table(df$ingreso.Career,df$ingreso.Year),beside=TRUE, main = "Ingresantes Totales", legend.text = TRUE, ylim=c(0,100), col=c("#FF7F00" ,"#80FF00", "#00FF7F", "#0080FF" ,"#7F00FF" ,"#FF0080"))
-```
-
-Al observar ambos gráficos podemos constatar que la incorporación de Ingeniería Biomédica aumentó el alumnado. Es notable que esta especialidad es elegida mayormente por mujeres, logrando el aumento significativo de ingresantes mujeres, siendo este de un 84%.
-
-Se observa un aumento del 13% en la totalidad del alumnado de Ingeniería entre 2018 y 2019. De ese incremento, el 62.5% pertenecen a Ingeniería Biomédicas y el 37.5% al resto de las orientaciones. 
-
-En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años, a pesar de haber disminuido en un 3% respecto a 2018.
 
 # Otorgamiento desparejo de becas
 
@@ -189,8 +189,6 @@ En base a esto, se puede notar una gran diferencia en la densidad de becas. Teni
 * En epocas como febrero, los alumnos poseen un mayor nivel de compromiso.
 
 En conclusión, esta falta de homogeneidad de los cursos, puede causar la inconsistencia en la cantidad de becas otorgadas a la cual nos referimos, así, validando nuestra hipótesis. Aun así, cabe resaltar que indiferentemente de si la conservan o no, el 35% de los ingresantes obtiene una beca.
-
-
 
 
 # Rendimiento académico
@@ -294,7 +292,7 @@ plot(varImp(object = model_nnet),main="NNET - Importancia de las Variables")
 
 ## GLM
 
-Por ultimo, producimos un modelo GLM, modelo lineal generalizado. Este último modelo prioriza también a Análisis en mayor medida que el resto de las calificaciones, y demostró una precisión del 84%, ya que de las pruebas realizadas, marcó a 3 alumnos que se desincribieron como si no lo hubieran hecho, y a un alumno que sigue en la carrera como desertor, dando un total de cuatro falsos positivos.
+Por ultimo, producimos un modelo GLM, modelo lineal generalizado. Este último modelo prioriza también a Análisis en mayor medida que el resto de las calificaciones, y demostró una precisión del 84%, ya que de las pruebas realizadas, marcó a 3 alumnos que se desincribieron como si no lo hubieran hecho, falsos negativos, y a un alumno que sigue en la carrera como desertor,falso positivo, dando un total de cuatro errores en la predicción.
 
 ```{r predicGLM, echo = FALSE, cache = FALSE}
 library(ROCR)
