@@ -1,8 +1,8 @@
 library(readxl)
 library(dplyr)
-INGRESO2018 <- read_excel("~/Desktop/Excels/INGRESO 2018-ANON.xlsx")
-INGRESO2019 <- read_excel("~/Desktop/Excels/INGRESO 2019-ANON.xlsx")
-INGRESO2018_2019 <- read_excel("~/Desktop/Excels/INGRESO 2018-2019-ANON.xlsx")
+INGRESO2018 <- read_excel("INGRESO 2018-ANON.xlsx")
+INGRESO2019 <- read_excel("INGRESO 2019-ANON.xlsx")
+INGRESO2018_2019 <- read_excel("INGRESO 2018-2019-ANON.xlsx")
 INGRESO2018 <- INGRESO2018 %>% rename(Ingreso=Oportunidad..del.Ingreso)
 INGRESO2019$Status <- INGRESO2019$Estado.del..Aspirante
 INGRESO2019[,19] <- NULL
@@ -78,8 +78,8 @@ INGRESOS$Rec.FIS<- as.numeric(INGRESOS$Rec.FIS)
 INGRESOS$Rec.MAT<- as.numeric(INGRESOS$Rec.MAT)
 INGRESOS$PROM.CI<- as.numeric(INGRESOS$PROM.CI)
 INGRESOS$Prom..Sec<- as.numeric(INGRESOS$Prom..Sec)
-Analisis_IND <- read_excel("~/Desktop/Excels/Analisis IND.xlsx")
-Analisis_INF <- read_excel("~/Desktop/Excels/Analisis INF.xlsx")
+Analisis_IND <- read_excel("Analisis IND.xlsx")
+Analisis_INF <- read_excel("Analisis INF.xlsx")
 AnalisisInf <- Analisis_INF[which(Analisis_INF[,"Parcial..1"] != 0),]
 AnalisisInd <- Analisis_IND[which(Analisis_IND[,"Parcial..1"] != 0),]
 rm(Analisis_IND)
@@ -95,7 +95,8 @@ rm(INGRESO2018)
 rm(INGRESO2019)
 rm(INGRESO2018_2019)
 rm(INGRESOMERGED)
-names(ingreso) <- c("Name","Sex", "Career", "Year", "Entry","Mat", "Fis", "PromSec", "Grant", "School", "Status", "RMat", "RFis", "PromCI", "GrantTipe","GrantRequest","GetsGrant","YearInc")
+names(ingreso) <- c("Sex", "Career", "Year", "Entry","Mat", "Fis", "PromSec", "Grant", "School", "Status", "Name", "RMat", "RFis", "PromCI", "GrantTipe","GrantRequest","GetsGrant","Nombre Completo")
+ingreso$Name[7]<-"Aguirres Garcia Pitronaci"
 ingreso[,18]=NULL
 baja <- c("BAJA SE PASA A FCE", "BAJA DESAPROBO RECUPERATORIO", "bAJA DESAPROBO RECUPERATORIO", "Baja 2017", "BAJA PACT", "BAJA NO VINO A RECUPERAR")
 ingreso$Status <- sapply(ingreso$Status, strErrorFix, baja, rep("BAJA", length(baja)))
@@ -104,4 +105,3 @@ save(file = "ingreso.rdata", ingreso)
 changing<-c("Feb","Oct","Part","Dir","Pas","Sep","Ago","Full","Lib")
 INGRESOS$Ingreso<-sapply(INGRESOS$Ingreso,strErrorFix,changed,changing)
 save(file = "INGRESOS.RData", INGRESOS)
-
