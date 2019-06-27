@@ -254,7 +254,15 @@ predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exa
 outcomeName<-'Baja'
 predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
 plot(varImp(object = model_gbm),main="GBM - Importancia de las Variables")
+
 ```
+
+
+
+|    | Predice que la da de Baja | Predice que NO la da de Baja   |
+| :------- | :------: | -------: |
+| La da de Baja   | 8      | 0  |
+| NO la da de Baja  | 1     | 23  |
 
 ## Random Forest
 
@@ -271,7 +279,15 @@ predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exa
 outcomeName<-'Baja'
 predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
 plot(varImp(object = model_rf),main="RandomForest - Importancia de las Variables")
+
 ```
+
+
+|    | Predice que la da de Baja | Predice que NO la da de Baja   |
+| :------- | :------: | -------: |
+| La da de Baja   | 7      | 2  |
+| NO la da de Baja  | 0     | 23  |
+
 
 ## NNET
 
@@ -288,7 +304,17 @@ predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exa
 outcomeName<-'Baja'
 perf <- performance(predaux, "auc")
 plot(varImp(object = model_nnet),main="NNET - Importancia de las Variables")
+
+
+
 ```
+
+
+|    | Predice que la da de Baja | Predice que NO la da de Baja   |
+| :------- | :------: | -------: |
+| La da de Baja   | 8      | 1  |
+| NO la da de Baja  | 1     | 22  |
+
 
 ## GLM
 
@@ -306,6 +332,11 @@ outcomeName<-'Baja'
 perf <- performance(predaux, "auc")
 plot(varImp(object = model_glm),main="GLM - Importancia de las Variables")
 ```
+
+|    | Predice que la da de Baja | Predice que NO la da de Baja   |
+| :------- | :------: | -------: |
+| La da de Baja   | 7      | 2  |
+| NO la da de Baja  | 2     | 22  |
 
 
 ## Predictor

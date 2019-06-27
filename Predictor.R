@@ -29,13 +29,13 @@ finalQuals=finalQuals %>% mutate_if(is.character, as.numeric)
 finalQuals$Baja <- as.factor(finalQuals$Baja)
 
 
-index <- createDataPartition(finalQuals$Baja, p=0.75, list=FALSE)
+index <- createDataPartition(finalQuals$Baja, p=0.7, list=FALSE)
 trainSet <- finalQuals[ index,]
 testSet <- finalQuals[-index,]
 
 control <- rfeControl(functions = rfFuncs,
                       method = "repeatedcv",
-                      repeats = 3,
+                      repeats = 15,
                       verbose = FALSE)
 
 outcomeName<-'Baja'
@@ -51,15 +51,19 @@ predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exa
 
 fitControl <- trainControl(
   method = "repeatedcv",
-  number = 4,
+  number = 5,
   repeats = 20)
 grid <- expand.grid(n.trees=c(10,20,50,100,500,1000),shrinkage=c(0.01,0.05,0.1,0.5),n.minobsinnode = c(3,5,10),interaction.depth=c(1,5,10))
+
+
+
 
 model_gbm<-train(trainSet[,predictors],trainSet[,outcomeName],method='gbm')
 predictions<-predict.train(object=model_gbm,testSet[,predictors],type="raw")
 table(predictions)
 library(gbm)
 varImp(object=model_gbm)  #El mejor de todos 0.94
+
 #save(file = "GBM/model_gbm.rdata", model_rf)
 #save(file = "GBM/predictions.rdata", predictions)
 #save(file = "GBM/testSet.rdata", testSet)
@@ -87,25 +91,30 @@ model_glm<-train(trainSet[,predictors],trainSet[,outcomeName],method='glm')
 predictions<-predict.train(object=model_glm,testSet[,predictors],type="raw")
 table(predictions)
 varImp(object=model_glm) #AUC 0.85
-# save(file = "GLM/model_glm.rdata", model_glm)
-# save(file = "GLM/predictions.rdata", predictions)
-# save(file = "GLM/testSet.rdata", testSet)
+ #  save(file = "GLM/model_glm.rdata", model_glm)
+ # save(file = "GLM/predictions.rdata", predictions)
+ # save(file = "GLM/testSet.rdata", testSet)
 
-# plotROC <- function(pred){
-#   perf<- performance(pred,"tpr","fpr")
-#   plot(perf)
-#   AUC<-performance(pred,"auc")@y.values[[1]]
-#   grid()
-#   text(.6,.2,sprintf("AUC=%0.3f", AUC))
-#   abline(0,1,col="red", lty = 2)
-# }
+
+
+plotROC <- function(pred){
+  perf<- performance(pred,"tpr","fpr")
+  plot(perf)
+  AUC<-performance(pred,"auc")@y.values[[1]]
+  grid()
+  text(.6,.2,sprintf("AUC=%0.3f", AUC))
+  abline(0,1,col="red", lty = 2)
+}
 # 
-# predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
 # 
-# perf <- performance(predaux, "auc")
-# perf@y.values[[1]]
+perf <- performance(predaux, "auc")
+perf@y.values[[1]]
 # 
-# plotROC(predaux)
+plotROC(predaux)
+
+
+
 
 
 
