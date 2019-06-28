@@ -240,7 +240,12 @@ En esta sección del informe, se desarrollará en que consiste el predictor, los
 
 ## GBM
 
-Primero, se produjo un modelo GBM, modelo de incremento estocástico del gradiente, observamos que en el se le da mayor prioridad al primer parcial de Algebra y al parcial de Análisis por sobre el resto. Este tiene una precisión del 97% segun las pruebas, ya que de los 32 alumnos que utilizamos en dichas pruebas, predijo correctamente quienes no desertaron, y de todas las deserciones, solo una fue un falso positivo.
+Primero, se produjo un modelo GBM, modelo de incremento estocástico del gradiente, observamos que en el se le da mayor prioridad al primer parcial de Algebra y al parcial de Análisis por sobre el resto. Este tiene una precisión del 97% segun las pruebas, y como observamos en la tabla adjunta, solo predijo mal un resultado:
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 8      | 0  |
+| No se desinscribe  | 1     | 23  |
 
 ```{r predicGBM, echo = FALSE, cache = FALSE}
 library(ROCR)
@@ -258,15 +263,15 @@ plot(varImp(object = model_gbm),main="GBM - Importancia de las Variables")
 ```
 
 
-
-|    | Predice que la da de Baja | Predice que NO la da de Baja   |
-| :------- | :------: | -------: |
-| La da de Baja   | 8      | 0  |
-| NO la da de Baja  | 1     | 23  |
-
 ## Random Forest
 
-Luego, generamos un modelo RandomForest, o en español, "Bosques Aleatorios". Este es el único modelo que le dió la menor importancia a la nota de Análisis. Este tiene una exactitud del 93% según las pruebas realizadas, categorizando correctamente a los alumnos que no desertaron, y de los que predijo que se desincribirían de la carrera, solo dos fueron falsos positivos.
+Luego, generamos un modelo RandomForest, o en español, "Bosque Aleatorio". Este es el único modelo que le dió la menor importancia a la nota de Análisis. Según las pruebas realizadas, tiene una exactitud del 93%, y como podemos observar en la tabla a continuación, solo predijo mal dos resultados:
+
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 7      | 2  |
+| No se desinscribe  | 0     | 23  |
 
 ```{r predicRF, echo = FALSE, cache = FALSE}
 library(ROCR)
@@ -283,15 +288,15 @@ plot(varImp(object = model_rf),main="RandomForest - Importancia de las Variables
 ```
 
 
-|    | Predice que la da de Baja | Predice que NO la da de Baja   |
-| :------- | :------: | -------: |
-| La da de Baja   | 7      | 2  |
-| NO la da de Baja  | 0     | 23  |
-
-
 ## NNET
 
-Seguidamente, elaboramos un modelo NNET, modelo con una red neuronal. Este modelo también priorizó a Análisis, y tiene una precisión del 94%, y de todos los alumnos analizados por el mismo, predijo correctamente los que dejaron y no la carrera, aun así, predijo un falso positivo en cada categoría.
+Seguidamente, elaboramos un modelo NNET, modelo con una red neuronal. Este modelo también priorizó a Análisis, y tiene una precisión del 94%, como podemos observar en la tabla, ya que solo realizó dos predicciones erroneas:
+
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 8      | 1  |
+| No se desinscribe  | 1     | 22  |
 
 ```{r predicNNET, echo = FALSE, cache = FALSE}
 library(ROCR)
@@ -310,15 +315,14 @@ plot(varImp(object = model_nnet),main="NNET - Importancia de las Variables")
 ```
 
 
-|    | Predice que la da de Baja | Predice que NO la da de Baja   |
-| :------- | :------: | -------: |
-| La da de Baja   | 8      | 1  |
-| NO la da de Baja  | 1     | 22  |
-
-
 ## GLM
 
-Por ultimo, producimos un modelo GLM, modelo lineal generalizado. Este último modelo prioriza también a Análisis en mayor medida que el resto de las calificaciones, y demostró una precisión del 84%, ya que de las pruebas realizadas, marcó a 3 alumnos que se desincribieron como si no lo hubieran hecho, falsos negativos, y a un alumno que sigue en la carrera como desertor,falso positivo, dando un total de cuatro errores en la predicción.
+Por ultimo, producimos un modelo GLM, modelo lineal generalizado. Este último modelo prioriza también a Análisis en mayor medida que el resto de las calificaciones, y demostró una precisión del 84%, dandonos un total de cuatro predicciones incorrectas, como puede verse en la siguiente tabla:
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe  | 7      | 2  |
+| No se desinscribe  | 2     | 22  |
 
 ```{r predicGLM, echo = FALSE, cache = FALSE}
 library(ROCR)
@@ -332,12 +336,6 @@ outcomeName<-'Baja'
 perf <- performance(predaux, "auc")
 plot(varImp(object = model_glm),main="GLM - Importancia de las Variables")
 ```
-
-|    | Predice que la da de Baja | Predice que NO la da de Baja   |
-| :------- | :------: | -------: |
-| La da de Baja   | 7      | 2  |
-| NO la da de Baja  | 2     | 22  |
-
 
 ## Predictor
 
