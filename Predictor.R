@@ -90,7 +90,7 @@ varImp(object=model_nnet) # AUC 0.92
 model_glm<-train(trainSet[,predictors],trainSet[,outcomeName],method='glm')
 predictions<-predict.train(object=model_glm,testSet[,predictors],type="raw")
 table(predictions)
-varImp(object=model_glm) #AUC 0.85
+varImp(object=model_glm) #AUC 0.84
  #  save(file = "GLM/model_glm.rdata", model_glm)
  # save(file = "GLM/predictions.rdata", predictions)
  # save(file = "GLM/testSet.rdata", testSet)

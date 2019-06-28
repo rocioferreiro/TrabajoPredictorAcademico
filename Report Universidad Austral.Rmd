@@ -262,7 +262,6 @@ plot(varImp(object = model_gbm),main="GBM - Importancia de las Variables")
 
 ```
 
-
 ## Random Forest
 
 Luego, generamos un modelo RandomForest, o en español, "Bosque Aleatorio". Este es el único modelo que le dió la menor importancia a la nota de Análisis. Según las pruebas realizadas, tiene una exactitud del 93%, y como podemos observar en la tabla a continuación, solo predijo mal dos resultados:
