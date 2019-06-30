@@ -1,0 +1,343 @@
+---
+title: "Report Universidad Austral"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::material:
+    highlight: kate
+    
+---
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+
+
+![](logo_interno.png)
+
+# Introducción
+
+
+Se realizó un trabajo en el sistema R según información brindada por la Universidad Austral sobre ingresantes en la carrera Ingeniería de los años 2018 y 2019. 
+El trabajo realizado consistió primero en adaptar los datos para que se puedan utilizar correctamente para una adecuada interpretación. 
+Posteriormente, el trabajo se basó en lo que encontraran en este informe a continuación.
+
+Se llevó acabo un resumen gráfico de los datos para poder tener una idea general de los ingresantes de los cuales se acentúa el resto de la tarea. 
+
+Así pues, se obtuvieron distintas conclusiones sobre las matriculas para tener en cuenta para futuras promociones, y se realizó un predictor académico, que podrá afirmar si una persona dejara o no la carrera en base a las notas en  los primeros parciales.
+
+
+# Resumen Gráfico de los datos
+
+### Información de Ingresantes
+
+```{r resumen1, echo=FALSE, cache=FALSE}
+load(file = "ingreso.rdata")
+load(file = "analisisInd.rdata")
+load(file = "AnalisisInf.rdata")
+library(plotrix)
+library(colortools)
+
+careers <- table(ingreso$Career)
+table <- table(ingreso[which(ingreso$Sex == "F"), "PromCI"])
+
+porcentajesBajas <- (table(ingreso$Status)/ length(ingreso$Status)) * 100
+porcentajesBajas <- as.integer(porcentajesBajas)
+
+par(mfrow=c(2,2))
+
+barplot(careers,col = c("#F06C98","#36D88A", "#DFFB3F"),ylim=c(0,250),main="Distribución Por Carrera",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4)
+
+histStack(ingreso$PromCI,ingreso$Sex,legend.pos="topright", col = c("#F06C98", "#6CF0C4"), main = "Promedio del Curso de ingreso")
+
+pie(table(ingreso$Entry), main = "Convocatoria por curso de Ingreso", radius = 1, col = c("#85FF40", "#40FF7B", "#40FFFA", "#4085FF", "#7B40FF", "#FA40FF", "#FF4085", "#FF7B40", "#FFFA40"))
+
+pie(table(ingreso$Status), c(paste("Baja", porcentajesBajas[1], "%"),paste("Matriculado", porcentajesBajas[2], "%")), col = c("#FF4085", "#40FF7B"), main = "Proporción de Bajas", radius = 1)
+
+```
+
+Estos cuatro gráficos acentúan datos que se utilizan más adelante. 
+
+En el primero se puede ver cómo están distribuidos los ingresantes dependiendo de la carrera a la cual ingresan. Esta información será muy útil en las conclusiones uno y tres.
+
+El segundo grafico, el cual es sobre los promedios del curso de ingreso, compara el desempeño entre las mujeres y los varones para tenerlo en cuenta durante el trabajo, ya que en ningún momento se discrimina por sexo.
+
+El tercer grafico, muestra la desproporcion en convocatoria de los distintos cursos. Informacion que utilizaremos en futuras conclusiones.
+
+EL último señala la proporción de bajas del curso de ingreso. Esto no es utilizado directamente, pero le dará contexto al predictor que se encuentra al final del informe.
+
+### Rendimiento Académico 
+
+```{r notas, echo = FALSE, cache = FALSE}
+
+library(plotrix)
+load("finalQuals.RData")
+
+ap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] > 3),"Name"]
+desap <- finalQuals[which(finalQuals[c(1:length(finalQuals)),c(2:5)] < 4),"Name"]
+desap <- desap[1:41]
+
+ap <- rep("APROBADO", length(ap))
+desap <- rep("DESAPROBADO", length(desap))
+
+notas <- c(ap, desap)
+notas <- as.factor(notas)
+
+porcentajesNotas <- (table(notas) / length(notas)) * 100
+porcentajesNotas <- as.integer(porcentajesNotas)
+
+pie3D(table(notas), labels = c(paste("Aprobados", porcentajesNotas[1], "%"),paste("Desaprobados", porcentajesNotas[2], "%")), col = c("#42E73A", "#FF7400"), main = "Aprobados Primeros Parciales", explode = 0.1)
+
+```
+
+El  gráfico exhibe la cantidad total de aprobados en los primeros parciales. Se juntaron todos, porque serán los datos utilizados en el predictor, y es importante preponderar que la gran mayoría desaprobó como mínimo un parcial.
+
+```{r resumen2, echo=FALSE, cache=FALSE}
+load(file = "ingreso.rdata")
+Schools <- table(ingreso$School)
+Schools <- as.data.frame(Schools)
+topSchools <- Schools[which(Schools[,"Freq"] > 10),]
+x <- barplot(topSchools$Freq,col = c("#FF7400", "#AFFF00", "#00FF2B", "#00F8FF", "#001EFF", "#BD00FF", "#FF0067"), ylim=c(0,27),main="Colegio con más ingresantes",   ylab = "Cantidad de Ingresantes",las=1,font.axis=4, legend.text = topSchools$Var1, xlim = c(0,12))
+```
+Si bien los alumnos vienen de multiples colegios, ya que tenemos 383 alumnos provenientes de 150 colegios diferentes, cabe destacar estos 7 colegios quienes aportan la mayor cantidad de ingresantes a la universidad.
+
+# Impacto de Biomédica
+### El incremento de ingresantes de 2018 a 2019 se debe a la incorporación de la carrera Ingeniería Biomédica.
+
+Utilizaremos un gráfico para destacar el contraste entre la cantidad de mujeres y hombres en cada año y carrera.
+
+
+```{r obj1.2, echo=FALSE, cache=FALSE}
+library(plotrix)
+load(file = "ingreso.rdata")
+Year <- ingreso[, "Year"]
+df <- data.frame(ingreso$Year, ingreso$Sex, ingreso$Career) 
+df$ingreso.Career <- as.character(df$ingreso.Career)
+df[which(df$ingreso.Sex == "F"),"ingreso.Career"] <- paste(df[which(df$ingreso.Sex == "F"), "ingreso.Career"],"F")
+df[which(df$ingreso.Sex == "M"),"ingreso.Career"] <- paste(df[which(df[,"ingreso.Sex"] == "M"), "ingreso.Career"],"M")
+barplot(table(df$ingreso.Career,df$ingreso.Year),beside=TRUE, main = "Ingresantes Totales", legend.text = TRUE, ylim=c(0,100), col=c("#FF7F00" ,"#80FF00", "#00FF7F", "#0080FF" ,"#7F00FF" ,"#FF0080"))
+```
+
+Al observar ambos gráficos podemos constatar que la incorporación de Ingeniería Biomédica aumentó el alumnado. Es notable que esta especialidad es elegida mayormente por mujeres, logrando el aumento significativo de ingresantes mujeres, siendo este de un 84%.
+
+Se observa un aumento del 13% en la totalidad del alumnado de Ingeniería entre 2018 y 2019. De ese incremento, el 62.5% pertenecen a Ingeniería Biomédicas y el 37.5% al resto de las orientaciones. 
+
+En conclusión, la Universidad Austral obtuvo un aumento del alumnado comparado con el 2018 originado por la incorporación de Biomédicas. Si bien ese incremento de alumnos también se debe en menor medida a las otras orientaciones, se observa una baja de incorporaciones masculinas en Ingeniería Industrial debido a que se supone que parte de ellos tuvieron otras opciones como Informática o Biomédica. También se observa que, aunque en 2019 hubo un aumento significativo de mujeres, los hombres son mayoría en ambos años, a pesar de haber disminuido en un 3% respecto a 2018.
+
+# Rendimiento en el ingreso
+### Matemática del curso de ingreso es mas exigente que Física.
+
+``` {r obj2, echo=FALSE, cache=FALSE}
+dataMat <- data.frame(ingreso$Mat, ingreso$Career)
+dataFis <- data.frame(ingreso$Fis, ingreso$Career)
+dataMat[,"ingreso.Career"] <- paste(" ", dataMat[,"ingreso.Career"])
+names(dataMat) <- c("Grade", "Career")
+dataFis[,"ingreso.Career"] <- paste("  ", dataFis[,"ingreso.Career"])
+names(dataFis) <- c("Grade", "Career")
+data <- merge.data.frame(dataFis, dataMat, all = TRUE)
+boxplot(data$Grade~data$Career, col = c("#3CF0A9" ,"#F03C83" ,"#F0A93C"), xlab = "Materia por Carrera", ylab = "Notas", main = "Fisica                                     Matematica")
+```
+
+
+Al observar el gráfico lo primero que se debe saber es lo que representa.Cada rectangulo representa las notas de las diferentes carreras, en el area de matemática y de física. En los extremos superiores e inferiores, se encuentran los valores máximos y mínimos, respectivamente, el medio es el área con mayor concentración de los datos y su línea representa el valor medio.
+
+Se puede ver de forma notable que la media en función a la materia Física es mucho más alta que la de Matemática, sin importar la carrera. 
+
+Esto se debe a distintos factores que se pueden suponer:
+
+* Física es más fácil que Matemática en el curso de ingreso.
+* Los alumnos tienden a aprender con más facilidad los contenidos de Física que los de Matemática.
+* La corrección del examen de Matemática es más exigente.
+
+En conclusión, se puede observar en los ingresantes de 2018 y 2019 que se obtienen mejores notas en Física que en Matemática, indiferente de cual sea el justificativo de esto.
+
+# Otorgamiento desparejo de becas
+
+### La cantidad de becas otorgadas difiere por mucho entre las distintas oportunidades de ingreso.
+
+```{r obj4, echo=FALSE, cache=FALSE}
+load(file = "INGRESOS.rdata")
+library(plotrix)
+library(colortools)
+barplot(table(INGRESOS$Obtiene..BECA,INGRESOS$Ingreso),main="Becas obtenidas por ingreso", ylab ="Cantidad de ingresantes",xlab="Instancia del curso",las=1,font.axis=2,col=c("#FFAE00","#B2F63D"),legend.text = c("No obtiene beca","Obtiene beca"))
+```
+
+En este gráfico, las barras indican la cantidad de alumnos que asistió a cada curso de ingreso, y hace una distinción sobre los que obtuvieron una beca.
+
+Obtenemos las siguientes conclusiones:
+
+* El curso de febrero tiene la mayor densidad de becados.
+* Los que ingresan libre nunca obtienen beca.
+* Los cursos mas escasos en becados son el FullTime y el de agosto.
+* Los ingresantes con pase universitario en general no obtienen becas.
+* En septiembre, PartTime e ingreso directo casi el 50% obtiene beca.
+
+En base a esto, se puede notar una gran diferencia en la densidad de becas. Teniendo en cuenta como son dictados, podriamos atribuir dichas diferencias a:
+* Al ser dictados por distintos profesores, su nivel de exigencia varía.
+* A su vez, la claridad en la comunicación de los conocimientos varía.
+* En epocas como febrero, los alumnos poseen un mayor nivel de compromiso.
+
+En conclusión, esta falta de homogeneidad de los cursos, puede causar la inconsistencia en la cantidad de becas otorgadas a la cual nos referimos, así, validando nuestra hipótesis. Aun así, cabe resaltar que indiferentemente de si la conservan o no, el 35% de los ingresantes obtiene una beca.
+
+
+# Rendimiento académico
+
+### La carrera Ingeniería industrial suele tener mejor nota en Análisis Matemático I a diferencia de Ingeniería Informática.
+
+```{r obj3, echo=FALSE, cache=FALSE}
+load(file = "analisisInd.rdata")
+load(file = "analisisInf.rdata")
+library(ggplot2)
+AnalisisInd[,4] <- "IND"
+AnalisisInf[,4] <- "INF"
+analisis <- merge.data.frame(AnalisisInd, AnalisisInf, all = TRUE)
+names(analisis) <- c("names", "Nota", "Prom",  "Carrera")
+Nota <- analisis$Nota
+Career <- analisis$Career
+analisis <- analisis[,-3]
+analisis$Nota <- as.numeric(analisis$Nota)
+analisis$Career <- as.factor(analisis$Carrera)
+library(plyr)
+p<-ggplot(analisis, aes(x=Nota, fill=Carrera)) +
+  geom_density(alpha=0.7)
+p + scale_fill_manual(values=c("#00FF7F", "orange")) + theme(aspect.ratio = 0.7) + labs(title = "Notas de Analisis 1") +   theme(plot.title = element_text(size = 35, face = "bold")) +  theme(
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA)
+        )
+```
+
+En el gráfico vemos una curva que se utiliza para trazar los valores medios. En el podemos observar cuan diferentes son los "Picos" de cada carrera, que es en donde las calificaciones de los alumnos se concentran respecto al total, siendo un pico más alto una muestra clara de que es mayor el número de alumnos con dicha nota.
+
+Los datos con los que se formaron las distribuciones son veintiséis personas de Ingeniería Informática y cincuenta y uno de Ingeniería Industrial. Esto es importante ya que, a la hora de observar el gráfico, la media de industrial es mucho más alta que la de informática.
+
+De los alumnos Informáticos solo el 42% aprobó, mientras que en los industriales el 63% se encuentra entre los aprobados. Recordamos que aprobar equivale a obtener una nota de cuatro o más.
+
+Si observamos el gráfico podemos notar que aproximadamente la mitad de alumnos Industriales aprueban el parcial con media de cuatro, lo cual no sucede así con informática ya que su media es tres. 
+
+Existe una gran diferencia además del valor de su media y es que si nos concentramos solo en los estudiantes industriales aprobados podemos asegurar que existen alumnos con notas entre cinco y nueve, lo cual no sucede con informática que tiene un pico en cuatro y se observa que a excepción de un alumno que obtuvo diez, no hay notas entre seis y nueve.
+
+De esta manera podemos afianzar la hipótesis que Ingeniería Industrial obtiene mejores notas y más aprobados en el parcial de Análisis Matemático I.
+
+
+# Predicción de deserción
+
+### Predicción de deserción respecto a las calificaciones de Algebra, Análisis y Programación.
+
+En esta sección del informe, se desarrollará en que consiste el predictor, los distintos modelos utilizados, con una prueba al final de todos ellos. Para lograr esta tarea empleamos cuatro modelos distintos.
+
+## GBM
+
+Primero, se produjo un modelo GBM, modelo de incremento estocástico del gradiente, observamos que en el se le da mayor prioridad al primer parcial de Algebra y al parcial de Análisis por sobre el resto. Este tiene una precisión del 97% segun las pruebas, y como observamos en la tabla adjunta, solo predijo mal un resultado:
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 8      | 0  |
+| No se desinscribe  | 1     | 23  |
+
+```{r predicGBM, echo = FALSE, cache = FALSE}
+library(ROCR)
+library(caret)
+library(gbm)
+load("finalQuals.RData")
+load(file = "GBM/model_gbm.rdata")
+load(file = "GBM/predictions.rdata")
+load(file ="GBM/testSet.rdata")
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+plot(varImp(object = model_gbm),main="GBM - Importancia de las Variables")
+
+```
+
+## Random Forest
+
+Luego, generamos un modelo RandomForest, o en español, "Bosque Aleatorio". Este es el único modelo que le dió la menor importancia a la nota de Análisis. Según las pruebas realizadas, tiene una exactitud del 93%, y como podemos observar en la tabla a continuación, solo predijo mal dos resultados:
+
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 7      | 2  |
+| No se desinscribe  | 0     | 23  |
+
+```{r predicRF, echo = FALSE, cache = FALSE}
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "RF/model_rf.rdata")
+load(file = "RF/predictions.rdata")
+load(file ="RF/testSet.rdata")
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+predaux<-prediction(as.numeric(predictions),testSet[,outcomeName])
+plot(varImp(object = model_rf),main="RandomForest - Importancia de las Variables")
+
+```
+
+
+## NNET
+
+Seguidamente, elaboramos un modelo NNET, modelo con una red neuronal. Este modelo también priorizó a Análisis, y tiene una precisión del 94%, como podemos observar en la tabla, ya que solo realizó dos predicciones erroneas:
+
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe   | 8      | 1  |
+| No se desinscribe  | 1     | 22  |
+
+```{r predicNNET, echo = FALSE, cache = FALSE}
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "NNET/model_nnet.rdata")
+load(file = "NNET/predictions.rdata")
+load(file ="NNET/testSet.rdata")
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+perf <- performance(predaux, "auc")
+plot(varImp(object = model_nnet),main="NNET - Importancia de las Variables")
+
+
+
+```
+
+
+## GLM
+
+Por ultimo, producimos un modelo GLM, modelo lineal generalizado. Este último modelo prioriza también a Análisis en mayor medida que el resto de las calificaciones, y demostró una precisión del 84%, dandonos un total de cuatro predicciones incorrectas, como puede verse en la siguiente tabla:
+
+|    | Predice que se desinscribe | Predice que no se desinscribe   |
+| :------- | :------: | -------: |
+| Se desinscribe  | 7      | 2  |
+| No se desinscribe  | 2     | 22  |
+
+```{r predicGLM, echo = FALSE, cache = FALSE}
+library(ROCR)
+library(caret)
+load("finalQuals.RData")
+load(file = "GLM/model_glm.rdata")
+load(file = "GLM/predictions.rdata")
+load(file ="GLM/testSet.rdata")
+predictors<-c("Analisis exam 1","IntroProg exam 1","Algebra exam 2","Algebra exam 1")
+outcomeName<-'Baja'
+perf <- performance(predaux, "auc")
+plot(varImp(object = model_glm),main="GLM - Importancia de las Variables")
+```
+
+## Predictor
+
+Cliqueando en el siguiente enlace, se encontrarán con una prueba que permite predecir si un alumno dejará o no la carrera, tras ingresar cuatro notas. Se podrá elegir el modelo en base cual se quiera predecir.
+
+## [prediction](https://rocioferreiro.shinyapps.io/predict/)
