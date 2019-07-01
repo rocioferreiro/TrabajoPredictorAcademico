@@ -184,7 +184,6 @@ Obtenemos las siguientes conclusiones:
 * En septiembre, PartTime e ingreso directo casi el 50% obtiene beca.
 
 En base a esto, se puede notar una gran diferencia en la densidad de becas. Teniendo en cuenta como son dictados, podriamos atribuir dichas diferencias a:
-
 * Al ser dictados por distintos profesores, su nivel de exigencia varía.
 * A su vez, la claridad en la comunicación de los conocimientos varía.
 * En epocas como febrero, los alumnos poseen un mayor nivel de compromiso.
